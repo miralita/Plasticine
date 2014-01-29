@@ -42,7 +42,7 @@ sub test4 {
 }
 
 package AnotherTest;
-use base 'Plasticine::Generator';
+use base 'Plasticine::Attribute';
 
 sub new { return bless {}, shift };
 
@@ -76,7 +76,7 @@ sub throw_ok(&@) {
     ok(0, $msg);
 }
 
-use_ok('Plasticine::Generator');
+use_ok('Plasticine::Attribute');
 
 my $obj = new_ok('MyTest');
 

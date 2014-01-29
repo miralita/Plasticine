@@ -2,16 +2,16 @@ use 5.14.0;
 use utf8;
 use strict;
 use warnings;
-package Plasticine::Generator;
+package Plasticine::Attribute;
 
 =head1 NAME
 
-Plasticine::Generator - генераторы кода
+Plasticine::Attribute - генераторы кода
 
 =head1 SYNOPSIS
 
     package MyTest;
-    use base 'Plasticine::Generator';
+    use base 'Plasticine::Attribute';
 
     sub new { return bless {}, shift };
 
