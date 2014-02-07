@@ -14,7 +14,7 @@ BEGIN {
 use lib $path . 'lib';
 
 package MyTest;
-use base 'Plasticine::Object';
+use parent 'Plasticine::Object';
 
 our $var1 :Get;
 our $var2 :Get = 15;
@@ -34,11 +34,18 @@ sub test3 :Protected {
     return 'protected sub';
 }
 
+sub test5 :Abstract {}
+
 package SubTest;
+use parent 'Plasticine::Object';
 use base 'MyTest';
 
 sub test4 {
     return shift->test3;
+}
+
+sub test5 {
+    return 54;
 }
 
 package AnotherTest;
@@ -82,6 +89,7 @@ my $obj = new_ok('MyTest');
 
 ok(!$obj->var1, 'getter undef');
 throw_ok { $obj->var1(123) } 'ERROR_NOT_IMPLEMENTED';
+throw_ok { $obj->test5 } 'ERROR_NOT_IMPLEMENTED';
 
 is($obj->var2, 15);
 is_deeply($obj->var3, [ 1..5 ], 'default value - arrayref');
@@ -99,6 +107,7 @@ throw_ok { $obj->test3; } 'ERROR_INVALID_ACCESS';
 my $obj1 = new_ok('SubTest');
 
 is($obj1->test4, 'protected sub');
+is($obj1->test5, 54, 'overrided abstract sub');
 
 my $obj2 = new_ok('AnotherTest');
 is($obj2->var1, 35);

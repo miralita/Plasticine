@@ -262,6 +262,20 @@ sub Protected :ATTR(CODE) {
     };
 }
 
+=head2 Abstract
+
+Делает метод абстрактным (т.е. его невозможно вызвать из родительского класса,
+а только из дочернего). При попытке вызова кидает исключение ERROR_NOT_IMPLEMENTED
+
+=cut
+sub Abstract :ATTR(CODE) {
+    my ($package, $symbol, $sub, undef, $data) = @_;
+    my $name = *{$symbol}{NAME};
+    *{$symbol} = subname "$package\::$name" => sub {
+        throw ERROR_NOT_IMPLEMENTED => "$name must be overrided in a derived class";
+    };
+}
+
 # Генератор основного метода
 sub __make_accessor_stub {
     my $symbol = shift;
