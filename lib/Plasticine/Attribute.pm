@@ -77,7 +77,7 @@ no strict 'refs';
 Работает ТОЛЬКО со скалярами!
 
 =cut
-sub Get :ATTR(SCALAR) {
+sub Get :ATTR(SCALAR, BEGIN) {
     my ($package, $symbol, undef, undef, $data) = @_;
     # Генерируем основной метод
     __make_accessor_stub($symbol);
@@ -125,7 +125,7 @@ sub Get :ATTR(SCALAR) {
     our $var :Get Set(sub { my $self = shift; $self->_data->{var} = shift; });
 
 =cut
-sub Set :ATTR(SCALAR) {
+sub Set :ATTR(SCALAR, BEGIN) {
     my ($package, $symbol, undef, undef, $data) = @_;
     # Генерируем основной метод
     __make_accessor_stub($symbol);
@@ -174,7 +174,7 @@ sub Set :ATTR(SCALAR) {
     });
 
 =cut
-sub Default :ATTR(SCALAR) {
+sub Default :ATTR(SCALAR, BEGIN) {
     my ($package, $symbol, undef, undef, $data) = @_;
     # Генерируем основной метод
     __make_accessor_stub($symbol);
@@ -206,7 +206,7 @@ sub Default :ATTR(SCALAR) {
     }
 
 =cut
-sub Private :ATTR(CODE) {
+sub Private :ATTR(CODE, BEGIN) {
     my ($package, $symbol, $sub, undef, $data) = @_;
     my $name = *{$symbol}{NAME};
     *{$symbol} = subname "$package\::$name" => sub {
@@ -244,7 +244,7 @@ sub Private :ATTR(CODE) {
     }
 
 =cut
-sub Protected :ATTR(CODE) {
+sub Protected :ATTR(CODE, BEGIN) {
     my ($package, $symbol, $sub, undef, $data) = @_;
     my $name = *{$symbol}{NAME};
     *{$symbol} = subname "$package\::$name" => sub {
@@ -268,7 +268,7 @@ sub Protected :ATTR(CODE) {
 а только из дочернего). При попытке вызова кидает исключение ERROR_NOT_IMPLEMENTED
 
 =cut
-sub Abstract :ATTR(CODE) {
+sub Abstract :ATTR(CODE, BEGIN) {
     my ($package, $symbol, $sub, undef, $data) = @_;
     my $name = *{$symbol}{NAME};
     *{$symbol} = subname "$package\::$name" => sub {
