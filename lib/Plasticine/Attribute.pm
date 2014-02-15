@@ -10,6 +10,8 @@ Plasticine::Attribute - генераторы кода
 
 =head1 SYNOPSIS
 
+Хелперы для ООП:
+
     package MyTest;
     use base 'Plasticine::Attribute';
 
@@ -27,6 +29,24 @@ Plasticine::Attribute - генераторы кода
     our $var5 :Get Set Default(sub { return 123; });
     # сеттер с кастомным коллбэком и дефолтным значением из значения переменной
     our $var6 :Get Set(sub { my $self = shift; $self->{var6} = shift() * 5; }) = 5;
+
+Хелперы для Exporter:
+
+    package MyLib;
+    use base 'Plasticine::Attribute';
+
+    sub lib_test1 :Export {}
+
+    sub lib_test2 :Export {}
+
+    # далее используем как обычно
+    package MyTest;
+    use MyLib;
+    # если MyLib в одном файле с MyTest, то используем
+    # MyLib->import;
+
+    lib_test1();
+    lib_test2();
 
 =head1 DESCRIPTION
 
@@ -49,6 +69,8 @@ use Attribute::Handlers;
 use Sub::Name;
 # структуры при отдаче наружу будем клонировать
 use Storable qw(dclone);
+
+require Exporter;
 
 use Plasticine::Exception;
 
@@ -274,6 +296,41 @@ sub Abstract :ATTR(CODE, BEGIN) {
     *{$symbol} = subname "$package\::$name" => sub {
         throw ERROR_NOT_IMPLEMENTED => "$name must be overrided in a derived class";
     };
+}
+
+=head2 Export
+
+Облегченная работа с Exporter
+
+    # вызов для перла >= 5.10
+    sub test :Export {
+        ...
+    }
+    # вызов для доисторического перла. Библиотека все равно требует новый перл,
+    # так что этот пример сохранен, чтобы не забыть:
+    sub test1 :Export(test1) {}
+
+=cut
+sub Export :ATTR(CODE, BEGIN) {
+    my ($package, $symbol, $sub, undef, $data) = @_;
+    my $name = *{$symbol}{NAME};
+    # В state-переменной кэшируем имена пакетов, котоорым уже добавили Exporter
+    state $already = {};
+    # из main ничего не экспортируем
+    return if $package eq 'main';
+    unless ($already->{$package}) {
+        # добавляем Exporter в @ISA пакета
+        push @{"$package\::ISA"}, 'Exporter';
+        # и ставим флаг, что мы это уже сделали
+        $already->{$package} = 1;
+    }
+    if ($symbol eq 'ANON' && $data) {
+        # Костыль для доисторичекого перла
+        push @{"$package\::EXPORT"}, $data;
+    } else {
+        # добавляем процедуру в @EXPORT пакета
+        push @{"$package\::EXPORT"}, $name;
+    }
 }
 
 # Генератор основного метода

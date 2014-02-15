@@ -55,6 +55,17 @@ sub new { return bless {}, shift };
 
 our $var1 :Get Set = 35;
 
+package ExportLib;
+use base 'Plasticine::Attribute';
+
+sub export_test1 :Export {
+    return 1;
+}
+
+sub export_test2 :Export {
+    return 2;
+}
+
 package main;
 use Test::More;
 use Data::Dumper;
@@ -113,6 +124,10 @@ my $obj2 = new_ok('AnotherTest');
 is($obj2->var1, 35);
 is($obj2->var1(10), 10);
 is($obj2->var1, 10);
+
+ExportLib->import;
+is(export_test1(), 1);
+is(export_test2(), 2);
 
 done_testing();
 
